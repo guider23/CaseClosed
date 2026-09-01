@@ -1,0 +1,13 @@
+sqlalchemy>=2.0
+psycopg2-binary
+pydantic-settings
+scikit-learn
+numpy
+google-genai
+anthropic
+openai
+tenacity
+fastapi
+uvicorn[standard]
+requests
+pytest
