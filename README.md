@@ -7,7 +7,7 @@ I built CaseClosed to automate chargeback dispute defense. The system listens fo
 ## How to Run Locally
 
 1. **Environment Setup**
-   Copy `.env.example` to `.env` and insert your Gemini API Key.
+   Copy `.env.example` to `.env` and insert your LLM API Key (OpenAI, Anthropic, or Gemini).
    
 2. **Install Dependencies**
    ```bash
