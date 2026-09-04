@@ -113,6 +113,8 @@ def process_dispute_sync(dispute_id: str):
                 dispute.status = "human_review"
                 dispute.gate_reason = gate_reason
                 log_audit(dispute_id, "gated_human", detail=gate_reason)
+                session.commit()
+                return
             session.commit()
 
         # compose
@@ -240,6 +242,36 @@ def get_dispute(dispute_id: str):
             "evidence_bundle": dispute.evidence_bundle,
             "audit": audit_lines
         }
+
+
+@app.post("/disputes/{dispute_id}/draft")
+def generate_draft(dispute_id: str):
+    with Session(engine) as session:
+        dispute = session.query(Dispute).filter_by(dispute_id=dispute_id).first()
+        if not dispute:
+            raise HTTPException(status_code=404, detail="not found")
+        if dispute.draft:
+            return {"status": "already_drafted", "draft": dispute.draft}
+            
+        composer = LLMComposer()
+        draft_response = composer.compose(dispute.evidence_bundle, dispute)
+        draft = draft_response.text
+
+        validation = validate_citations(draft, dispute.evidence_bundle)
+        if not validation.valid:
+            log_audit(dispute_id, "draft_rejected", detail="; ".join(validation.errors))
+            feedback = "\n".join(validation.errors)
+            draft_response = composer.compose(dispute.evidence_bundle, dispute, validation_feedback=feedback)
+            draft = draft_response.text
+            validation = validate_citations(draft, dispute.evidence_bundle)
+            if not validation.valid:
+                log_audit(dispute_id, "manual_draft_failed", detail="validation failed twice")
+                raise HTTPException(status_code=422, detail="Failed to generate valid citations")
+
+        dispute.draft = draft
+        session.commit()
+        log_audit(dispute_id, "manual_drafted", detail=f"model={draft_response.model}")
+        return {"status": "drafted", "draft": draft}
 
 
 @app.post("/disputes/{dispute_id}/approve")

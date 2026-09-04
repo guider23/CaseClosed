@@ -339,7 +339,7 @@
                 
                 draftEl.innerHTML = safeDraft;
             } else {
-                draftEl.innerHTML = '<em style="color: var(--text-secondary)">No draft generated.</em>';
+                draftEl.innerHTML = '<div style="text-align: center; margin: 2rem 0;"><button class="btn-primary" onclick="generateDraft()" id="btn-generate-draft">Ask for a draft</button></div>';
             }
 
             // Score
@@ -421,6 +421,25 @@
                 alert("Submit failed: " + e.message);
                 btn.disabled = false;
                 btn.textContent = 'Approve & Submit →';
+            }
+        }
+
+        async function generateDraft() {
+            const btn = document.getElementById('btn-generate-draft');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Generating...';
+            }
+            try {
+                const res = await fetch(`/disputes/${currentDisputeId}/draft`, { method: 'POST' });
+                if (!res.ok) throw new Error(await res.text());
+                await loadDetail(currentDisputeId);
+            } catch (e) {
+                alert("Generation failed: " + e.message);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Ask for a draft';
+                }
             }
         }
 
