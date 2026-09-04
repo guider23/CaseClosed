@@ -17,14 +17,14 @@ class DraftResponse:
     attempt: int
 
 
-SYSTEM_PROMPT = """You are drafting a formal chargeback rebuttal for a payment dispute.
+SYSTEM_PROMPT = """You are drafting a succinct dispute summary for a chargeback case, destined for the Razorpay API.
 
 CRITICAL RULES:
-1. Use ONLY facts present in the evidence bundle JSON provided
-2. EVERY sentence must end with [source: key1, key2, ...] citing the bundle keys used
-3. Structure: brief intro, delivery evidence section, customer behavior section, conclusion requesting reversal
-4. If a needed fact is missing from the bundle, omit that point entirely - NEVER speculate or infer
-5. Never mention the customer in abusive terms
+1. MAXIMUM LENGTH: The entire summary MUST be strictly under 1000 characters. Do not write a long letter.
+2. Use ONLY facts present in the evidence bundle JSON provided
+3. EVERY sentence must end with [source: key1, key2, ...] citing the bundle keys used
+4. Structure: brief statement of delivery/fulfillment, customer behavior, and conclusion requesting reversal
+5. If a needed fact is missing from the bundle, omit that point entirely - NEVER speculate or infer
 6. Professional, factual tone throughout
 
 If the evidence bundle is insufficient to make a case, state that clearly rather than improvising."""
@@ -91,7 +91,7 @@ class LLMComposer(Composer):
 
     def _build_prompt(self, bundle: dict, dispute: Dispute, validation_feedback: str | None) -> str:
         lines = [
-            f"Draft a chargeback rebuttal for dispute {dispute.dispute_id}.",
+            f"Draft a succinct dispute summary (<1000 chars) for dispute {dispute.dispute_id}.",
             f"Dispute type: {dispute.dispute_type}",
             f"Reason: {dispute.reason_code}",
             f"Amount: {dispute.amount} {dispute.currency}",

@@ -42,11 +42,19 @@ class RazorpayClient:
             # Handle the demo case where the dispute ID is synthetic
             if e.response.status_code == 404 and (dispute_id.startswith("disp_000") or dispute_id.startswith("disp_demo_")):
                 logger.warning(f"Simulating fetch_dispute for synthetic ID: {dispute_id}")
+                # Exact schema mock as per Razorpay documentation
                 return {
                     "id": dispute_id,
+                    "entity": "dispute",
+                    "amount": 1000,
+                    "currency": "INR",
                     "status": "open",
+                    "phase": "chargeback",
+                    "reason_code": "fraud",
                     "reason_description": "Simulated dispute for demo",
-                    "amount": 1000
+                    "respond_by": 1735689600,
+                    "created_at": 1704067200,
+                    "evidence": {}
                 }
             
             # Real errors
@@ -63,19 +71,24 @@ class RazorpayClient:
         retry=retry_if_exception_type((httpx.RequestError, httpx.TimeoutException)),
         reraise=True
     )
-    def submit_contest(self, dispute_id: str, summary: str, action: str = "draft") -> dict:
+    def submit_contest(self, dispute_id: str, summary: str, amount: int, simulated_evidence: dict, action: str = "draft") -> dict:
         """
         Contests the dispute on Razorpay. action can be 'draft' or 'submit'.
         """
         try:
+            payload = {
+                "amount": amount,
+                "summary": summary,
+                "action": action
+            }
+            if simulated_evidence:
+                payload.update(simulated_evidence)
+                
             with httpx.Client(timeout=self.timeout) as client:
                 response = client.patch(
                     f"{self.base_url}/disputes/{dispute_id}/contest",
                     auth=self.auth,
-                    json={
-                        "summary": summary,
-                        "action": action
-                    }
+                    json=payload
                 )
                 response.raise_for_status()
                 return response.json()

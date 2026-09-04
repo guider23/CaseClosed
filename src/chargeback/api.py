@@ -46,6 +46,23 @@ def get_classifier():
     return _CLASSIFIER
 
 
+def map_evidence_to_docs(bundle: dict) -> dict:
+    """Simulates uploading the evidence_bundle to the Razorpay Documents API and mapping to categories."""
+    mapping = {}
+    if bundle:
+        s_bundle = str(bundle).lower()
+        if "delivery" in s_bundle or "shipping" in s_bundle or "tracking" in s_bundle:
+            mapping["shipping_proof"] = ["doc_demo_shipping_123"]
+        if "receipt" in s_bundle or "billing" in s_bundle or "invoice" in s_bundle:
+            mapping["billing_proof"] = ["doc_demo_billing_456"]
+            
+        if not mapping:
+            mapping["explanation_letter"] = ["doc_demo_explanation_789"]
+    else:
+        mapping["explanation_letter"] = ["doc_demo_explanation_789"]
+    return mapping
+
+
 @app.post("/webhooks/razorpay")
 async def razorpay_webhook(request: Request, background_tasks: BackgroundTasks):
     body = await request.body()
@@ -150,7 +167,16 @@ def process_dispute_sync(dispute_id: str):
                 try:
                     from chargeback.razorpay_client import RazorpayClient
                     client = RazorpayClient()
-                    client.submit_contest(dispute_id, draft, action="draft")
+                    
+                    simulated_evidence = map_evidence_to_docs(dispute.evidence_bundle)
+                    client.submit_contest(
+                        dispute_id, 
+                        draft, 
+                        amount=int(dispute.amount), 
+                        simulated_evidence=simulated_evidence, 
+                        action="draft"
+                    )
+                    
                     dispute.status = "submitted"
                     session.commit()
                     log_audit(dispute_id, "submitted", actor="system", detail="auto-submitted")
@@ -287,8 +313,15 @@ def approve_dispute(dispute_id: str):
         client = RazorpayClient()
         
         try:
+            simulated_evidence = map_evidence_to_docs(dispute.evidence_bundle)
             # We use action="draft" for the hackathon demo compromise (safe).
-            client.submit_contest(dispute_id, dispute.draft or "", action="draft")
+            client.submit_contest(
+                dispute_id, 
+                dispute.draft or "", 
+                amount=int(dispute.amount), 
+                simulated_evidence=simulated_evidence, 
+                action="draft"
+            )
             
             dispute.status = "submitted"
             session.commit()
