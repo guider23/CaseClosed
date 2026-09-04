@@ -201,6 +201,7 @@
         let disputesData = [];
         let currentDisputeId = null;
         let detailData = null;
+        let globalThreshold = 0.5;
 
         // XSS Prevention: Escape HTML characters
         function escapeHtml(unsafe) {
@@ -222,6 +223,9 @@
                 document.getElementById('stat-auto').textContent = (stats.auto_response_rate * 100).toFixed(1) + '%';
                 if (stats.held_out_precision) {
                     document.getElementById('stat-precision').textContent = `${stats.held_out_precision.toFixed(3)} / ${stats.held_out_recall.toFixed(3)}`;
+                }
+                if (stats.threshold) {
+                    globalThreshold = stats.threshold;
                 }
             } catch (e) {
                 console.error("Failed to load stats", e);
@@ -267,9 +271,8 @@
                 
                 let dotClass = 'bg-gray';
                 if (d.win_prob !== null) {
-                    // Assuming threshold around 0.65 for UI coloring demo
-                    if (d.win_prob >= 0.75) dotClass = 'bg-green';
-                    else if (d.win_prob >= 0.60) dotClass = 'bg-amber';
+                    if (d.win_prob >= globalThreshold) dotClass = 'bg-green';
+                    else if (d.win_prob >= globalThreshold - 0.1) dotClass = 'bg-amber';
                     else dotClass = 'bg-red';
                 }
 
@@ -346,7 +349,7 @@
             const prob = d.win_prob !== null ? d.win_prob : 0;
             document.getElementById('detail-prob').textContent = prob.toFixed(3);
             document.getElementById('detail-prob-bar').style.width = `${prob * 100}%`;
-            document.getElementById('detail-prob-bar').style.backgroundColor = prob >= 0.75 ? 'var(--success)' : (prob >= 0.60 ? 'var(--warning)' : 'var(--danger)');
+            document.getElementById('detail-prob-bar').style.backgroundColor = prob >= globalThreshold ? 'var(--success)' : (prob >= globalThreshold - 0.1 ? 'var(--warning)' : 'var(--danger)');
             
             const gateReason = document.getElementById('detail-gate-reason');
             if (d.gate_reason) {

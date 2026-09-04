@@ -280,8 +280,11 @@ def generate_draft(dispute_id: str):
             return {"status": "already_drafted", "draft": dispute.draft}
             
         composer = LLMComposer()
-        draft_response = composer.compose(dispute.evidence_bundle, dispute)
-        draft = draft_response.text
+        try:
+            draft_response = composer.compose(dispute.evidence_bundle, dispute)
+            draft = draft_response.text
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"LLM Error: {str(e)}")
 
         validation = validate_citations(draft, dispute.evidence_bundle)
         if not validation.valid:
@@ -372,7 +375,8 @@ def get_stats():
             "auto_response_rate": round(auto_count / len(disputes), 3) if disputes else 0,
             "human_review_count": human_count,
             "held_out_precision": held_out_precision,
-            "held_out_recall": held_out_recall
+            "held_out_recall": held_out_recall,
+            "threshold": m.get("threshold", 0.5)
         }
 
 
