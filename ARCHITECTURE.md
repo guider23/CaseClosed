@@ -9,14 +9,14 @@ graph TD
     A[Razorpay Webhook] --> B[Ingest & Save to DB]
     B --> C[Feature Extraction]
     C --> D[Gradient Boosting Classifier]
-    D --> E{Win Prob > Threshold?}
-    E -- No --> F[Gate: Human Review]
-    E -- Yes --> G[LLM Composer]
+    D --> G[LLM Composer]
     G --> H[Citation Validator]
-    H -- Pass --> I[Auto-Submit to Razorpay API]
+    H -- Pass --> E{Win Prob > Threshold?}
+    E -- Yes --> I[Auto-Submit to Razorpay API]
+    E -- No --> F[Gate: Human Review]
     H -- Fail --> J[Regenerate Draft]
     J --> K[Citation Validator]
-    K -- Pass --> I
+    K -- Pass --> E
     K -- Fail --> L[Gate: Human Review]
 ```
 
