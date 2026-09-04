@@ -2,10 +2,10 @@
 
 ## Held-out Evaluation
 
-- **Threshold**: `0.723`
-- **Precision**: `0.684`
-- **Recall**: `0.722`
-- **F1 Score**: `0.702`
+- **Threshold**: `0.677`
+- **Precision**: `0.714`
+- **Recall**: `0.833`
+- **F1 Score**: `0.769`
 
 ## Batch Recovery Simulation
 
@@ -23,16 +23,16 @@ Performance on the frozen held-out set simulating INR recovered.
 ### disp_00115 (not_as_described)
 - **Error Type**: Dropped but would have won (False Negative)
 - **Amount**: ₹1,618.72
-- **Model Prob**: 0.675
+- **Model Prob**: 0.635
 - **Actual Label**: merchant_won
-- **Analysis**: The model scored this slightly below our 0.723 threshold. While the item was successfully delivered 9 days prior and the customer account is aged (229 days), there is absolutely no chat history (`chat_thread_exists: false`). For `not_as_described` claims, the model heavily penalizes the lack of customer chat interactions (where they might have previously admitted the product was fine). The model played it safe, but the merchant ended up winning anyway.
+- **Analysis**: The model scored this slightly below our 0.677 threshold. While the item was successfully delivered 9 days prior and the customer account is aged (229 days), there is absolutely no chat history (`chat_thread_exists: false`). For `not_as_described` claims, the model heavily penalizes the lack of customer chat interactions (where they might have previously admitted the product was fine). The model played it safe, but the merchant ended up winning anyway.
 
 ### disp_00119 (item_not_received)
 - **Error Type**: Dropped but would have won (False Negative)
 - **Amount**: ₹3,299.57
-- **Model Prob**: 0.712
+- **Model Prob**: 0.668
 - **Actual Label**: merchant_won
-- **Analysis**: This was agonizingly close to the threshold (0.712 vs 0.723). The merchant had ironclad evidence: Proof of Delivery and a verified Signature (`signature_flag: true`). However, the customer had a history of filing disputes (`customer_prior_disputes: 1`). The Gradient Boosting model learned that banks strongly favor buyers with a history of disputes, and severely discounted the score. The system dropped it, missing out on ₹3,299.
+- **Analysis**: This was agonizingly close to the threshold (0.668 vs 0.677). The merchant had ironclad evidence: Proof of Delivery and a verified Signature (`signature_flag: true`). However, the customer had a history of filing disputes (`customer_prior_disputes: 1`). The Gradient Boosting model learned that banks strongly favor buyers with a history of disputes, and severely discounted the score. The system dropped it, missing out on ₹3,299.
 
 ### disp_00002 (item_not_received)
 - **Error Type**: Contested but lost (False Positive)
