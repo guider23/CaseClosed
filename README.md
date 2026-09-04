@@ -11,7 +11,7 @@ I built CaseClosed to automate chargeback dispute defense. The system listens fo
    ```
 3. Boot the server and dashboard:
    ```bash
-   make run
+   python main.py
    ```
 
 ## Documentation
