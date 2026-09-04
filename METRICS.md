@@ -5,11 +5,12 @@
 - **Threshold**: `0.723`
 - **Precision**: `0.684`
 - **Recall**: `0.722`
-- **F1 Score**: `0.000`
+- **F1 Score**: `0.702`
 
 ## Batch Recovery Simulation
 
 Performance on the frozen held-out set simulating INR recovered.
+*(Note: Each contested loss incurs a ₹1,500 false-positive penalty fee from the bank, so net expected value strictly favors selective AI contesting.)*
 
 | Strategy | INR Recovered | Auto-Response Rate |
 |----------|---------------|--------------------|

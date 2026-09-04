@@ -43,10 +43,10 @@ A single-page application built with Vanilla JS serves as the merchant portal. I
 While SQLite is excellent for local development, our synthetic data generation (`generator.py`) and fast API polling caused frequent database locks in WAL mode during testing. Moving to Supabase Postgres allowed us to handle concurrent webhooks without locking out the frontend dashboard.
 
 **Why Gradient Boosting instead of LLM for decision making?**
-We isolated decision-making (winning probability) from text generation (rebuttal drafting). LLMs are notoriously poor at statistically weighing historical risk factors (like a customer's prior dispute rate). We use a traditional XGBoost model for the mathematical decision, reserving the LLM exclusively for drafting text.
+We isolated decision-making (winning probability) from text generation (rebuttal drafting). LLMs are notoriously poor at statistically weighing historical risk factors (like a customer's prior dispute rate). We use a traditional Gradient Boosting model for the mathematical decision, reserving the LLM exclusively for drafting text.
 
 **Why a deterministic Validator instead of an LLM-as-a-Judge?**
 Using a second LLM to grade the first LLM is expensive and prone to recursive hallucinations. We designed our drafting prompt to output strict citation tags, allowing a 100% deterministic, ultra-fast Python regex script to guarantee that no fabricated data ever reaches Razorpay.
 
 **Why Gemini 2.5 Flash?**
-We opted for Gemini Flash over Pro. Since we stripped all reasoning responsibilities away from the LLM (handling logic via XGBoost and validation via Python), we only needed a fast, cheap text-formatting engine. Flash easily met our structural prompt constraints at a fraction of the cost.
+We opted for Gemini Flash over Pro. Since we stripped all reasoning responsibilities away from the LLM (handling logic via Gradient Boosting and validation via Python), we only needed a fast, cheap text-formatting engine. Flash easily met our structural prompt constraints at a fraction of the cost.
