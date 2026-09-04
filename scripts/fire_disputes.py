@@ -72,3 +72,5 @@ if __name__ == "__main__":
 
         for dispute in disputes:
             fire_one_dispute(dispute, endpoint)
+            # Sleep to prevent LLM API rate limits on free tiers
+            time.sleep(15)
