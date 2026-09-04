@@ -12,8 +12,15 @@ I built CaseClosed to automate chargeback dispute defense. The system listens fo
    pip install -r requirements.txt
    ```
 3. Boot the server and dashboard:
+   
+   **For Windows users:**
    ```bash
    python main.py
+   ```
+
+   **For Mac/Linux users:**
+   ```bash
+   make run
    ```
 
 ## Documentation
