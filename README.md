@@ -4,24 +4,35 @@
 I built CaseClosed to automate chargeback dispute defense. The system listens for Razorpay webhooks, automatically pulls delivery and chat evidence from the database, and uses an LLM to generate formal rebuttals. It catches its own hallucinations through a strict citation validation loop and automatically submits high-confidence wins to Razorpay while routing uncertain cases to a human.
 
 
-## Setup
+## How to Run Locally
 
-1. Copy `.env.example` to `.env` and set your API keys.
-2. Install dependencies:
+1. **Environment Setup**
+   Copy `.env.example` to `.env` and insert your Gemini API Key.
+   
+2. **Install Dependencies**
    ```bash
    pip install -r requirements.txt
    ```
-3. Boot the server and dashboard:
-   
-   **For Windows users:**
-   ```bash
-   python main.py
-   ```
 
-   **For Mac/Linux users:**
+3. **Generate Synthetic World & Train Classifier**
+   Before starting the server, you need to generate the synthetic orders, customers, and shipments, and train the Gradient Boosting model on the data:
    ```bash
-   make run
+   python run_generator.py
    ```
+   *(This populates the local SQLite database and saves `data/classifier.pkl` and `data/metrics.json`)*
+
+4. **Boot the API Server & Dashboard**
+   - Windows: `python main.py`
+   - Mac/Linux: `make run`
+   
+   The dashboard is now live at **[http://localhost:8000](http://localhost:8000)**.
+
+5. **Fire Simulated Razorpay Webhooks**
+   In a *new* terminal window, run the script to simulate incoming Razorpay disputes:
+   ```bash
+   python scripts/fire_disputes.py
+   ```
+   *Watch the dashboard to see the system instantly score, gate, and auto-draft rebuttals for the incoming disputes in real-time!*
 
 ## Documentation
 - **Architecture**: See `ARCHITECTURE.md` for a technical breakdown of the pipeline.
