@@ -1,6 +1,8 @@
 # CaseClosed
+### THEME - AI Risk Manager
 
 I built CaseClosed to automate chargeback dispute defense. The system listens for Razorpay webhooks, automatically pulls delivery and chat evidence from the database, and uses an LLM to generate formal rebuttals. It catches its own hallucinations through a strict citation validation loop and automatically submits high-confidence wins to Razorpay while routing uncertain cases to a human.
+
 
 ## Setup
 
